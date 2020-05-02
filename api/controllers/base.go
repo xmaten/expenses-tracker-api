@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/xmaten/expenses-tracker-api/api/middlewares"
 	"github.com/xmaten/expenses-tracker-api/api/models"
 	"log"
