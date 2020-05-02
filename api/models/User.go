@@ -3,6 +3,7 @@ package models
 import (
 	"errors"
 	"github.com/badoux/checkmail"
+	"github.com/jinzhu/gorm"
 	"html"
 	"strings"
 	"time"
@@ -17,7 +18,7 @@ type User struct {
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
 
-func (u *User) BeforeSave() (err error)  {
+func (u *User) BeforeSave() (err error) {
 	if err != nil {
 		return err
 	}
@@ -33,8 +34,8 @@ func (u *User) Prepare() {
 	u.UpdatedAt = time.Now()
 }
 
-func (u *User) AfterFind() (err error)  {
-	if  err != nil {
+func (u *User) AfterFind() (err error) {
+	if err != nil {
 		return err
 	}
 
@@ -57,34 +58,57 @@ func (u *User) Validate(action string) map[string]string {
 				errorMessages["Invalid_email"] = err.Error()
 			}
 		}
+
+	case "login":
+		if u.Password == "" {
+			err = errors.New("required password")
+			errorMessages["Required_password"] = err.Error()
+		}
+		if u.Email == "" {
+			err = errors.New("required email")
+			errorMessages["Required_email"] = err.Error()
+		}
+		if u.Email != "" {
+			if err = checkmail.ValidateFormat(u.Email); err != nil {
+				err = errors.New("invalid email")
+				errorMessages["Invalid_email"] = err.Error()
+			}
+		}
+
+	default:
+		if u.Username == "" {
+			err = errors.New("required usernam")
+			errorMessages["Required_username"] = err.Error()
+		}
+
+		if u.Password == "" {
+			err = errors.New("required password")
+			errorMessages["Required_password"] = err.Error()
+		}
+
+		if u.Email == "" {
+			err = errors.New("required email")
+			errorMessages["Required_email"] = err.Error()
+		}
+
+		if u.Email != "" {
+			if err = checkmail.ValidateFormat(u.Email); err != nil {
+				err = errors.New("invalid email")
+				errorMessages["Invalid_email"] = err.Error()
+			}
+		}
 	}
+
+	return errorMessages
 }
 
+func (u *User) SaveUser(db *gorm.DB) (*User, error) {
+	var err error
+	err = db.Debug().Create(&u).Error
 
+	if err != nil {
+		return &User{}, err
+	}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+	return u, nil
+}
