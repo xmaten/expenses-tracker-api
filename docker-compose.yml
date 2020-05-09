@@ -4,14 +4,14 @@ services:
     container_name: full_app
     build:
       context: .
-      dockerfile: ./Dockerfile.dev
+      dockerfile: ./Dockerfile
     ports:
       - 8888:8888
     restart: on-failure
     volumes:
       - .:/usr/src/app
     depends_on:
-      - forum-postgres 
+      - forum-postgres
     networks:
       - forum
 

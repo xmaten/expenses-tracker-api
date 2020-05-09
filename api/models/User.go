@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/badoux/checkmail"
 	"github.com/jinzhu/gorm"
+	"github.com/xmaten/expenses-tracker-api/api/security"
 	"html"
 	"strings"
 	"time"
@@ -19,11 +20,14 @@ type User struct {
 }
 
 func (u *User) BeforeSave() (err error) {
+	hashedPassword, err := security.Hash(u.Password)
+
 	if err != nil {
 		return err
 	}
 
 	u.Password = string(hashedPassword)
+
 	return nil
 }
 

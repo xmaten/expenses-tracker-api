@@ -8,7 +8,6 @@ import (
 	"github.com/xmaten/expenses-tracker-api/api/utils/formaterror"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 )
 
 func (server *Server) CreateExpense(c *gin.Context) {
@@ -87,20 +86,19 @@ func (server *Server) CreateExpense(c *gin.Context) {
 }
 
 func (server *Server) GetUserExpenses(c *gin.Context) {
-	userID := c.Param("id")
+	expense := models.Expense{}
 
-	uid, err := strconv.ParseUint(userID, 10, 64)
+	uidToken, err := auth.ExtractTokenID(c.Request)
 	if err != nil {
-		errList["Invalid_request"] = "Invalid request"
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status": http.StatusBadRequest,
-			"error": errList,
+		errList["Unauthorized"] = "Unauthorized"
+		c.JSON(http.StatusUnauthorized, gin.H{
+			"status": http.StatusUnauthorized,
+			"error":  errList,
 		})
 		return
 	}
 
-	expense := models.Expense{}
-	expenses, err := expense.FindUserExpenses(server.DB, uint32(uid))
+	expenses, err := expense.FindUserExpenses(server.DB, uidToken)
 	if err != nil {
 		errList["No_post"] = "No post found"
 		c.JSON(http.StatusNotFound, gin.H{
