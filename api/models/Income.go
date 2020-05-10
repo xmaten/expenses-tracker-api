@@ -14,6 +14,7 @@ type Income struct {
 	Value     uint64    `gorm:"not null" json:"value"`
 	Author    User      `json:"author"`
 	AuthorID  uint32    `gorm:"not null" json:"author_id"`
+	Date string `gorm:"not null" json:"date"`
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
@@ -21,6 +22,7 @@ type Income struct {
 func (e *Income) Prepare() {
 	e.Title = html.EscapeString(strings.TrimSpace(e.Title))
 	e.Author = User{}
+	e.Date = html.EscapeString(strings.TrimSpace(e.Date))
 	e.CreatedAt = time.Now()
 	e.UpdatedAt = time.Now()
 }
@@ -37,6 +39,11 @@ func (e *Income) Validate() map[string]string {
 	if e.Value <= 0 {
 		err = errors.New("required value")
 		errorMessages["Required_value"] = err.Error()
+	}
+
+	if e.Date == "" {
+		err = errors.New("required date")
+		errorMessages["Required_date"] = err.Error()
 	}
 
 	if e.AuthorID < 1 {

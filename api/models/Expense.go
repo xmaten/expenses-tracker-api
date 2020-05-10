@@ -15,6 +15,7 @@ type Expense struct {
 	Value     uint64    `gorm:"not null" json:"value"`
 	Author    User      `json:"author"`
 	AuthorID  uint32    `gorm:"not null" json:"author_id"`
+	Date string `gorm:"not null" json:"date"`
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
@@ -22,6 +23,7 @@ type Expense struct {
 func (e *Expense) Prepare() {
 	e.Title = html.EscapeString(strings.TrimSpace(e.Title))
 	e.Category = html.EscapeString(strings.TrimSpace(e.Category))
+	e.Date = html.EscapeString(strings.TrimSpace(e.Date))
 	e.Author = User{}
 	e.CreatedAt = time.Now()
 	e.UpdatedAt = time.Now()
@@ -39,6 +41,11 @@ func (e *Expense) Validate() map[string]string {
 	if e.Category == "" {
 		err = errors.New("required category")
 		errorMessages["Required_category"] = err.Error()
+	}
+
+	if e.Date == "" {
+		err = errors.New("required date")
+		errorMessages["Required_date"] = err.Error()
 	}
 
 	if e.Value <= 0 {
