@@ -87,6 +87,15 @@ func (server *Server) CreateExpense(c *gin.Context) {
 
 func (server *Server) GetUserExpenses(c *gin.Context) {
 	expense := models.Expense{}
+	var dateStart string
+	var dateEnd string
+
+	queryParams := c.Request.URL.Query()
+
+	if len(queryParams) >= 2 {
+		dateStart = queryParams["date-start"][0]
+		dateEnd = queryParams["date-end"][0]
+	}
 
 	uidToken, err := auth.ExtractTokenID(c.Request)
 	if err != nil {
@@ -98,7 +107,7 @@ func (server *Server) GetUserExpenses(c *gin.Context) {
 		return
 	}
 
-	expenses, err := expense.FindUserExpenses(server.DB, uidToken)
+	expenses, err := expense.FindUserExpenses(server.DB, uidToken, dateStart, dateEnd)
 	if err != nil {
 		errList["No_post"] = "No post found"
 		c.JSON(http.StatusNotFound, gin.H{
